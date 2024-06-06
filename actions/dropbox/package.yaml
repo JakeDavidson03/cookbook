@@ -1,8 +1,6 @@
-# Required: A short name for the action package
-name: Advanced Template Package
+name: Dropbox client
 
-# Required: A description of what's in the action package.
-description: Action package description
+description: Dropbox client actions for interacting with remote resources
 
 # Required: A link to where the documentation on the package lives.
 documentation: https://github.com/...
