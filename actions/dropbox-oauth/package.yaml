@@ -1,6 +1,6 @@
 name: Dropbox client
 
-description: Dropbox client actions for interacting with remote resources (token authentication)
+description: Dropbox client actions for interacting with remote resources (OAuth authentication)
 
 # Required: A link to where the documentation on the package lives.
 documentation: https://github.com/...

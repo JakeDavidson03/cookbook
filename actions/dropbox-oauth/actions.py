@@ -1,13 +1,14 @@
 """
 Collection of actions for accessing and interacting with Dropbox resources.
 
-This package uses tokens for authentication.
+This package uses OAuth secrets.
 """
 
 import requests
 import json
 import re
-from sema4ai.actions import action, Secret
+from typing import Literal
+from sema4ai.actions import action, OAuth2Secret
 
 DELETE_URL = "https://api.dropboxapi.com/2/files/delete_v2"
 DIRECTORY_CONTENTS_URL = "https://api.dropboxapi.com/2/files/list_folder"
@@ -45,14 +46,21 @@ def url_safe_json_dumps(
 
 @action
 def create_directory(
-    dropbox_token: Secret,
+    dropbox_credentials: OAuth2Secret[
+        Literal["dropbox"],
+        list[
+            Literal[
+                "files.content.write"
+            ]
+        ]
+    ],
     remote_path: str
 ) -> str:
     """
     Create a remote directory/path on a Dropbox account.
 
     Args:
-        dropbox_token: The access token for an account.
+        dropbox_credentials: The credentials for accessing Dropbox.
         remote_path: The remote directory path to create.
 
     Returns:
@@ -62,7 +70,7 @@ def create_directory(
     response = requests.post(
         DIRECTORY_CREATE_URL,
         headers = {
-            "Authorization": f"Bearer {dropbox_token.value}",
+            "Authorization": f"Bearer {dropbox_credentials.access_token}",
             "Content-Type": "application/json"
         },
         data = json.dumps({
@@ -76,14 +84,21 @@ def create_directory(
 
 @action
 def delete_file(
-    dropbox_token: Secret,
+    dropbox_credentials: OAuth2Secret[
+        Literal["dropbox"],
+        list[
+            Literal[
+                "files.content.write"
+            ]
+        ]
+    ],
     remote_path: str
 ) -> str:
     """
     Delete a remote directory/file on a Dropbox account.
 
     Args:
-        dropbox_token: The access token for an account.
+        dropbox_credentials: The credentials for accessing Dropbox.
         remote_path: The remote path to delete.
 
     Returns:
@@ -93,7 +108,7 @@ def delete_file(
     response = requests.post(
         DELETE_URL,
         headers = {
-            "Authorization": f"Bearer {dropbox_token.value}",
+            "Authorization": f"Bearer {dropbox_credentials.access_token}",
             "Content-Type": "application/json"
         },
         data = json.dumps({
@@ -106,14 +121,21 @@ def delete_file(
 
 @action
 def get_file_contents(
-    dropbox_token: Secret,
+    dropbox_credentials: OAuth2Secret[
+        Literal["dropbox"],
+        list[
+            Literal[
+                "files.content.read"
+            ]
+        ]
+    ],
     remote_path: str
 ) -> str:
     """
     Get the file contents of a text-based file on a Dropbox account.
 
     Args:
-        dropbox_token: The access token for an account.
+        dropbox_credentials: The credentials for accessing Dropbox.
         remote_path: The remote file path.
 
     Returns:
@@ -123,7 +145,7 @@ def get_file_contents(
     response = requests.get(
         FILE_CONTENTS_READ_URL,
         headers = {
-            "Authorization": f"Bearer {dropbox_token.value}",
+            "Authorization": f"Bearer {dropbox_credentials.access_token}",
             "Content-Type": "text/plain",
             "Dropbox-API-Arg": url_safe_json_dumps({
                 "path": remote_path
@@ -136,14 +158,22 @@ def get_file_contents(
 
 @action
 def list_files(
-    dropbox_token: Secret,
+    dropbox_credentials: OAuth2Secret[
+        Literal["dropbox"],
+        list[
+            Literal[
+                "files.content.read",
+                "files.metadata.read"
+            ]
+        ]
+    ],
     remote_path: str
 ) -> str:
     """
     List remote files and folders on a Dropbox account.
 
     Args:
-        dropbox_token: The access token for an account.
+        dropbox_credentials: The credentials for accessing Dropbox.
         remote_path: The remote directory path to request against.
 
     Returns:
@@ -153,7 +183,7 @@ def list_files(
     response = requests.post(
         DIRECTORY_CONTENTS_URL,
         headers = {
-            "Authorization": f"Bearer {dropbox_token.value}",
+            "Authorization": f"Bearer {dropbox_credentials.access_token}",
             "Content-Type": "application/json"
         },
         data = json.dumps({
@@ -176,7 +206,14 @@ def list_files(
 
 @action
 def put_file_contents(
-    dropbox_token: Secret,
+    dropbox_credentials: OAuth2Secret[
+        Literal["dropbox"],
+        list[
+            Literal[
+                "files.content.write"
+            ]
+        ]
+    ],
     remote_path: str,
     file_contents: str
 ) -> str:
@@ -184,7 +221,7 @@ def put_file_contents(
     Put file contents at a remote path on a Dropbox account.
 
     Args:
-        dropbox_token: The access token for an account.
+        dropbox_credentials: The credentials for accessing Dropbox.
         remote_path: The remote file path.
         file_contents: The file contents to write.
 
@@ -195,7 +232,7 @@ def put_file_contents(
     response = requests.post(
         FILE_CONTENTS_WRITE_URL,
         headers = {
-            "Authorization": f"Bearer {dropbox_token.value}",
+            "Authorization": f"Bearer {dropbox_credentials.access_token}",
             "Content-Type": "application/octet-stream"
         },
         params = {
