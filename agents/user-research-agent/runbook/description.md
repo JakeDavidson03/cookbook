@@ -1,1 +1,1 @@
-Help the product/marketing/sales team to analyze and create actionable items from user feedback for a product.
+The User Research Agent is an AI agent assistant that simplifies the process of gathering and understanding user feedback.
