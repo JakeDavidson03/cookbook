@@ -1,9 +1,17 @@
-# Template: Advanced
+# Dropbox client
 
-The template showcases some more advanced configuration features of Actions.
+This package provides a set of actions for working with Dropbox assets. It provides the following actions:
 
-The action enables you to get GitHub commit messages for given repository, using a personal access token. It uses [custom data model](https://github.com/Sema4AI/actions/blob/master/action_server/docs/guides/04-custom-data.md) for the repository information input.
+| Action                    | Description                                           |
+|---------------------------|-------------------------------------------------------|
+| `create_directory`        | Create a remote directory using a full path.          |
+| `delete_file`             | Delete a remote file or folder.                       |
+| `get_file_contents`       | Fetch remote file contents. Supports text only.       |
+| `list_files`              | List remote files in a directory.                     |
+| `put_file_contents`       | Write file contents to a remote path. Supports text only. |
 
-🚀 You can leverage the whole Python ecosystem when creating actions. Sema4.ai provides a [bunch of libraries](https://pypi.org/search/?q=robocorp-); you can make your own. The sky is the limit.
+## Authentication
 
-👉 Check [Action Server](https://github.com/Sema4AI/actions/tree/master/action_server/docs) and [Actions](https://github.com/Sema4AI/actions/tree/master/actions/docs) docs for more information.
+Currently these actions require a secret that provides the access token for a pre-authenticated Dropbox account.
+
+OAuth will be included in a subsequent addition.
