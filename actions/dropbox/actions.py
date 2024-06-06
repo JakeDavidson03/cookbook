@@ -63,6 +63,36 @@ def create_directory(
     return remote_path
 
 @action
+def delete_file(
+    dropbox_token: Secret,
+    remote_path: str
+) -> str:
+    """
+    Delete a remote directory/path on a Dropbox account.
+
+    Args:
+        dropbox_token: The access token for an account.
+        remote_path: The remote directory path to delete.
+
+    Returns:
+        The deleted path.
+    """
+
+    response = requests.post(
+        DELETE_URL,
+        headers = {
+            "Authorization": f"Bearer {dropbox_token.value}",
+            "Content-Type": "application/json"
+        },
+        data = json.dumps({
+            "path": remote_path
+        })
+    )
+    response.raise_for_status()
+
+    return remote_path
+
+@action
 def list_files(
     dropbox_token: Secret,
     remote_path: str
