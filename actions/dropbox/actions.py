@@ -27,8 +27,43 @@ def entry_to_file_item(
         "size": entry["size"] if "size" in entry else 0
     }
 
+###########
+# ACTIONS #
+###########
+
 @action
-def list_remote_files(
+def create_directory(
+    dropbox_token: Secret,
+    remote_path: str
+) -> str:
+    """
+    Create a remote directory/path on a Dropbox account.
+
+    Args:
+        dropbox_token: The access token for an account.
+        remote_path: The remote directory path to create.
+
+    Returns:
+        The created path.
+    """
+
+    response = requests.post(
+        DIRECTORY_CREATE_URL,
+        headers = {
+            "Authorization": f"Bearer {dropbox_token.value}",
+            "Content-Type": "application/json"
+        },
+        data = json.dumps({
+            "path": remote_path,
+            "autorename": False
+        })
+    )
+    response.raise_for_status()
+
+    return remote_path
+
+@action
+def list_files(
     dropbox_token: Secret,
     remote_path: str
 ) -> str:
@@ -59,6 +94,7 @@ def list_remote_files(
             "include_mounted_folders": True
         })
     )
+    response.raise_for_status()
 
     result = response.json()
 
