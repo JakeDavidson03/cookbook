@@ -6,7 +6,6 @@ https://github.com/sema4ai/actions/blob/master/README.md
 
 """
 
-import numbers
 import requests
 import json
 import re
@@ -16,7 +15,7 @@ DELETE_URL = "https://api.dropboxapi.com/2/files/delete_v2"
 DIRECTORY_CONTENTS_URL = "https://api.dropboxapi.com/2/files/list_folder"
 DIRECTORY_CREATE_URL = "https://api.dropboxapi.com/2/files/create_folder_v2"
 FILE_CONTENTS_READ_URL = "https://content.dropboxapi.com/2/files/download"
-UPLOAD_URL = "https://content.dropboxapi.com/2/files/upload"
+FILE_CONTENTS_WRITE_URL = "https://content.dropboxapi.com/2/files/upload"
 
 def entry_to_file_item(
     entry: dict[str, str]
@@ -176,3 +175,39 @@ def list_files(
     files = list(map(entry_to_file_item, result["entries"]))
 
     return json.dumps(files, separators=(',', ':'))
+
+@action
+def put_file_contents(
+    dropbox_token: Secret,
+    remote_path: str,
+    file_contents: str
+) -> str:
+    """
+    Put file contents at a remote path on a Dropbox account.
+
+    Args:
+        dropbox_token: The access token for an account.
+        remote_path: The remote file path.
+        file_contents: The file contents to write.
+
+    Returns:
+        The remote path written to.
+    """
+
+    response = requests.post(
+        FILE_CONTENTS_WRITE_URL,
+        headers = {
+            "Authorization": f"Bearer {dropbox_token.value}",
+            "Content-Type": "application/octet-stream"
+        },
+        params = {
+            "arg": url_safe_json_dumps({
+                "path": remote_path,
+                "mode": "overwrite"
+            })
+        },
+        data = file_contents
+    )
+    response.raise_for_status()
+
+    return remote_path
