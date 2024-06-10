@@ -15,6 +15,8 @@ DIRECTORY_CREATE_URL = "https://api.dropboxapi.com/2/files/create_folder_v2"
 FILE_CONTENTS_READ_URL = "https://content.dropboxapi.com/2/files/download"
 FILE_CONTENTS_WRITE_URL = "https://content.dropboxapi.com/2/files/upload"
 
+DOWNLOAD_CHUNK_SIZE = 8192
+
 def entry_to_file_item(
     entry: dict[str, str]
 ) -> dict[str, str]:
@@ -103,6 +105,42 @@ def delete_file(
     response.raise_for_status()
 
     return remote_path
+
+@action
+def download_file(
+    dropbox_token: Secret,
+    remote_path: str,
+    local_path: str
+) -> str:
+    """
+    Download a remote file from a Dropbox account.
+
+    Args:
+        dropbox_token: The access token for an account.
+        remote_path: The remote file path.
+        local_path: The local file path to download to.
+
+    Returns:
+        The downloaded location of the file.
+    """
+
+    with requests.get(
+        FILE_CONTENTS_READ_URL,
+        headers = {
+            "Authorization": f"Bearer {dropbox_token.value}",
+            "Dropbox-API-Arg": url_safe_json_dumps({
+                "path": remote_path
+            })
+        },
+        stream = True
+    ) as response:
+        response.raise_for_status()
+
+        with open(local_path, 'wb') as file:
+            for chunk in response.iter_content(chunk_size=DOWNLOAD_CHUNK_SIZE):
+                file.write(chunk)
+
+    return local_path
 
 @action
 def get_file_contents(
