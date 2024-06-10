@@ -6,9 +6,11 @@ This package provides a set of actions for working with Dropbox assets. It provi
 |---------------------------|-------------------------------------------------------|
 | `create_directory`        | Create a remote directory using a full path.          |
 | `delete_file`             | Delete a remote file or folder.                       |
+| `download_file`           | Download a remote file to a local path.               |
 | `get_file_contents`       | Fetch remote file contents. Supports text only.       |
 | `list_files`              | List remote files in a directory.                     |
 | `put_file_contents`       | Write file contents to a remote path. Supports text only. |
+| `upload_file`             | Upload a local file to a remote path.                 |
 
 ## Authentication
 
