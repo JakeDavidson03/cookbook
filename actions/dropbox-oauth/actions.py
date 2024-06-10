@@ -7,6 +7,7 @@ This package uses OAuth secrets.
 import requests
 import json
 import re
+from io import BufferedReader
 from typing import Literal
 from sema4ai.actions import action, OAuth2Secret
 
@@ -17,6 +18,7 @@ FILE_CONTENTS_READ_URL = "https://content.dropboxapi.com/2/files/download"
 FILE_CONTENTS_WRITE_URL = "https://content.dropboxapi.com/2/files/upload"
 
 DOWNLOAD_CHUNK_SIZE = 8192
+UPLOAD_CHUNK_SIZE = 1024
 
 def entry_to_file_item(
     entry: dict[str, str]
@@ -27,6 +29,13 @@ def entry_to_file_item(
         "type": "directory" if entry[".tag"] == "folder" else "file",
         "size": entry["size"] if "size" in entry else 0
     }
+
+def read_chunks(file_object: BufferedReader, chunk_size: int):
+    while not file_object.closed:
+        data = file_object.read(chunk_size)
+        if not data:
+            break
+        yield data
 
 def url_safe_range_replace(match) -> str:
     char = match.group()
@@ -289,5 +298,49 @@ def put_file_contents(
         data = file_contents
     )
     response.raise_for_status()
+
+    return remote_path
+
+@action
+def upload_file(
+    dropbox_credentials: OAuth2Secret[
+        Literal["dropbox"],
+        list[
+            Literal[
+                "files.content.write"
+            ]
+        ]
+    ],
+    remote_path: str,
+    local_file: str
+) -> str:
+    """
+    Upload a local file to a Dropbox account.
+
+    Args:
+        dropbox_credentials: The credentials for accessing Dropbox.
+        remote_path: The remote file path.
+        local_file: The local file path to upload.
+
+    Returns:
+        The remote path uploaded to.
+    """
+
+    with open(local_file, "br") as file:
+        with requests.post(
+            FILE_CONTENTS_WRITE_URL,
+            headers = {
+                "Authorization": f"Bearer {dropbox_credentials.access_token}",
+                "Content-Type": "application/octet-stream"
+            },
+            params = {
+                "arg": url_safe_json_dumps({
+                    "path": remote_path,
+                    "mode": "overwrite"
+                })
+            },
+            data = read_chunks(file, UPLOAD_CHUNK_SIZE)
+        ) as response:
+            response.raise_for_status()
 
     return remote_path
