@@ -1,12 +1,1 @@
-{
-  "google": {
-    "clientId": "836187407532-61290c4qr13vmve5nh9t14e78fq8ivr4.apps.googleusercontent.com",
-    "clientSecret": "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",
-    "redirectUri": "http://localhost:4567"
-  },
-  "slack": {
-    "clientId": "505509721682.7035693008983",
-    "clientSecret": "2817606f61e4bf3e2012cf920785c46a",
-    "redirectUri": "http://localhost:4567"
-  }
-}
+
